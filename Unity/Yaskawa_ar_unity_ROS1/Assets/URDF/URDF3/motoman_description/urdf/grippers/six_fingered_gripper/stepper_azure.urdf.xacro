@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="twintool">
+    
+    <!-- load the azure kinect and six fingered gripper model -->
+    <xacro:include filename="$(find motoman_description)/urdf/azure/azure.urdf.xacro"/>
+    <xacro:include filename="$(find motoman_description)/urdf/grippers/six_fingered_gripper/six_fingered_gripper.urdf.xacro" />
+    
+    <!-- custom colors -->
+    <material name="3Dprinted_cream">
+        <color rgba="${254/255} ${251/255} ${234/255} 1"/>
+    </material>
+    <material name="leptrinoSilver">
+        <color rgba="0.75 0.75 0.75 1"/>
+    </material>
+
+    <link name="manifold">
+		<visual>
+			<origin rpy="0 ${-pi} 0" xyz="0 0 0" />
+			<geometry>
+				<mesh filename="package://motoman_description/meshes/tools/six_fingered_gripper_tool_set/manifold_20211112.stl" scale="0.001 0.001 0.001"/>
+			</geometry>
+            <material name="3Dprinted_cream"/>
+		</visual>
+		<collision>
+			<origin rpy="0 ${-pi} 0" xyz="0 0 0" />
+			<geometry>
+				<mesh filename="package://motoman_description/meshes/tools/six_fingered_gripper_tool_set/manifold_20211112.stl" scale="0.001 0.001 0.001"/>
+			</geometry>
+		</collision>
+	</link>
+
+    <xacro:macro name="leptrino_ft" params="parent prefix">
+        <joint name="${prefix}ft300_fix" type="fixed">
+            <origin xyz="0 0 ${(17/1000)}" rpy="${-pi} ${pi} ${(pi/2) + (pi/2)}"/> 
+            <parent link="${parent}" />
+            <child link="${prefix}leptrino" />
+        </joint>
+
+        <!-- Link representing the leptrino force-torque sensor -->
+        <!-- TODO: inertial properties -->
+        <link name="${prefix}leptrino">
+            <inertial>
+                <origin xyz="0 0 ${-17 / 1000}" rpy="0 0 0"/>
+                <mass value="0.300"/>
+                <inertia ixx="${262 / 1000000}" ixy="0" ixz="${1 / 1000000}" iyy="${265 / 1000000}" iyx="0" iyz="${1 / 1000000}" izz="${219 / 1000000}" izx="${-1 / 1000000}" izy="${1 / 1000000}"/>
+            </inertial>
+
+            <visual>
+                <origin xyz="0 0 0" rpy="${-pi/2} ${pi} ${-pi}" />
+                <geometry>
+                    <mesh filename="package://motoman_description/meshes/tools/six_fingered_gripper_tool_set/leptrino_sfs080f500m5r0u6.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <material name="leptrinoSilver"/>    
+            </visual>
+
+            <collision>
+                <origin xyz="0 0 0" rpy="${-pi/2} ${pi} ${-pi}" />
+                <geometry>
+                    <mesh filename="package://motoman_description/meshes/tools/six_fingered_gripper_tool_set/leptrino_sfs080f500m5r0u6.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+            </collision>
+        </link>
+
+        <joint name="${prefix}measurment_joint" type="fixed">
+            <!-- set rpy correspond to real hardware -->
+            <origin xyz="0 0 0" rpy="${0} ${pi+pi} ${-pi/2}" />
+            <parent link="${prefix}leptrino" />
+            <child link="${prefix}leptrino_measurement_joint" />
+        </joint>
+
+        <link name="${prefix}leptrino_measurement_joint"/>
+    </xacro:macro>
+
+    <!-- create the leptrino using the manifold as a parent link -->
+    <xacro:leptrino_ft parent="manifold" prefix=""/>
+
+    <!-- azure holder -->
+    <link name="azure_holder">
+		<visual>
+			<origin rpy="${-pi/2} ${-pi/2} 0" xyz="0 0 0" />
+			<geometry>
+				<mesh filename="package://motoman_description/meshes/azure/azure_holder_20211112.stl" scale="0.001 0.001 0.001"/>
+			</geometry>
+            <material name="3Dprinted_cream"/>
+		</visual>
+		<collision>
+			<origin rpy="${-pi/2} ${-pi/2} 0" xyz="0 0 0" />
+			<geometry>
+				<mesh filename="package://motoman_description/meshes/azure/azure_holder_20211112.stl" scale="0.001 0.001 0.001"/>
+			</geometry>
+		</collision>
+	</link>
+    <joint name="manifold_to_azure_holder" type="fixed">
+        <parent link="manifold" />
+        <child link="azure_holder" />
+        <origin xyz="${0/1000} ${(81.559+5.0)/1000} ${7.558/1000}" rpy="0 0 0" />
+    </joint>
+
+    <!-- azure holder to camera base link -->
+    <joint name="azure_holder_to_camera_base" type="fixed">
+        <parent link="azure_holder" />
+        <child link="camera_base" />
+        <origin xyz="${0/1000} ${3.5/1000} ${61.80/1000}" rpy="0 ${-pi/2} ${-pi/2}" />
+    </joint>
+    
+    <joint name="adaptor_2_to_base_gripper" type="fixed">
+        <parent link="leptrino" />
+        <child link="base_gripper" />
+        <origin xyz="0 0 ${28.8/1000}" rpy="${-pi/2} 0 -0.261799388" />
+    </joint>
+    
+</robot>

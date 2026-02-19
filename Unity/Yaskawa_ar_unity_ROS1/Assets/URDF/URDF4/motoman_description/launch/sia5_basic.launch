@@ -1,0 +1,15 @@
+<launch>
+  <!-- define the model -->
+  <arg name="model" value="$(find motoman_description)/urdf/sia5_basic.urdf.xacro"/>
+  <arg name="gui" default="True" />
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(arg model)'"/>
+  <param name="use_gui" value="$(arg gui)"/>
+
+  <!-- load the joint and state publisher node -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <!-- load the rviz config -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find motoman_description)/launch/rviz_config/sia5_basic.rviz" required="true" />
+</launch>
