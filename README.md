@@ -7,3 +7,6 @@
 
 ```bash
 roslaunch motoman_moveit_config demo.launch
+
+```bash
+roslaunch sia5_moveit sia5_moveit.launch
