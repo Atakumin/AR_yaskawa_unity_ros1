@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- arguments -->
+    <arg name="paused" default="false"/>
+    <arg name="gazebo_gui" default="true"/>
+    <arg name="initial_joint_positions" doc="Initial joint configuration of the robot"
+        default=" -J joint_b 0 -J joint_e 0 -J joint_l 0 -J joint_r 0 -J joint_s 0 -J joint_t 0 -J joint_u 0"/>
+
+    <!-- specify the planning pipeline -->
+    <!-- <arg name="pipeline" default="ompl" /> -->
+    <arg name="pipeline" default="pilz_industrial_motion_planner"/>
+    
+    <!-- debug mode for moveit -->
+    <arg name="debug" default="false" />
+    <!-- Choose controller manager: fake, simple, or ros_control -->
+    <arg name="moveit_controller_manager" default="simple" />
+    <!-- Set execution mode for fake execution controllers -->
+    <arg name="fake_execution_type" default="interpolate" />
+
+    <arg name="model" default="$(find motoman_description)/urdf/sia5_basic.urdf.xacro"/>
+    <!-- By default, we will load or override the robot_description -->
+    <arg name="load_robot_description" default="true"/>
+
+    <!-- load rviz at start -->
+    <arg name="use_rviz" default="true" />
+
+    <!-- set initial pose of robot -->
+    <arg name="x" value="0.0"/>
+    <arg name="y" value="0.0"/>
+    <arg name="z" value="0.5"/>
+    <arg name="roll" value="0.0"/>
+    <arg name="pitch" value="0.0"/>
+    <arg name="yaw" value="0.0"/>
+    <arg name="world_pose" 
+        value="-x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)" />
+
+    <!-- motoman simulation control -->
+    <include file="$(find motoman_control)/launch/sia5_sim_control.launch"/>
+
+    <!-- start up simulated world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" default="$(find motoman_sia5f_gazebo)/worlds/sia5_empty.world"/>
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="gui" value="$(arg gazebo_gui)"/>
+    </include>
+
+    <!-- send urdf file to ros param -->
+    <param name="robot_description"
+        command="$(find xacro)/xacro '$(arg model)'" />
+
+    <!-- spawn the urdf in gazebo sim world -->
+    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -model sia5 -param robot_description $(arg world_pose) $(arg initial_joint_positions)"
+        respawn="false" output="screen" />
+
+    <group if="$(eval arg('moveit_controller_manager') == 'fake')">
+        <!-- We do not have a real robot connected, so publish fake joint states via a joint_state_publisher
+            MoveIt's fake controller's joint states are considered via the 'source_list' parameter -->
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" unless="$(arg use_gui)">
+            <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
+        </node>
+        <!-- If desired, a GUI version is available allowing to move the simulated robot around manually
+            This corresponds to moving around the real robot without the use of MoveIt. -->
+        <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" if="$(arg use_gui)">
+            <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
+        </node>
+
+        <!-- Given the published joint states, publish tf for the robot links -->
+        <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" /> -->
+    </group>
+
+    <include file="$(find motoman_moveit_config)/launch/move_group.launch">
+        <arg name="allow_trajectory_execution" value="true"/>
+        <arg name="moveit_controller_manager" value="$(arg moveit_controller_manager)" />
+        <arg name="fake_execution_type" value="$(arg fake_execution_type)"/>
+        <arg name="info" value="true"/>
+        <arg name="debug" value="$(arg debug)"/>
+        <arg name="pipeline" value="$(arg pipeline)"/>
+        <arg name="urdf_model" value="$(arg model)"/>
+        <arg name="load_robot_description" value="$(arg load_robot_description)"/>
+    </include>    
+
+    <!-- start rviz if arg use_rviz is true -->
+    <include file="$(find motoman_sia5f_gazebo)/rviz_config/sia5_basic_moveit_config.rviz" if="$(arg use_rviz)">
+        <arg name="rviz_config" value="$(dirname)/moveit.rviz"/>
+        <arg name="debug" value="$(arg debug)"/>
+    </include>
+
+</launch>

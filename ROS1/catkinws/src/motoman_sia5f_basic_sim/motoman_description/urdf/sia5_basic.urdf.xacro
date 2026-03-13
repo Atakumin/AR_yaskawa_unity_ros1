@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<robot name="sia5" 
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- File Include -->
+  <xacro:include filename="$(find motoman_description)/urdf/sia5_arm/sia5_basic.urdf.xacro"/>
+
+  <!-- correction to height -->
+  <xacro:property name="z_offzet" value="0" />
+
+  <xacro:add_world>
+    <origin xyz="0 0 ${0.200+z_offzet}" rpy="0 0 0"/> <!-- original y is 0.205-->>
+  </xacro:add_world>
+
+  <link name="eef_link"/>
+  <joint name="tool0_ee_joint" type="fixed">
+    <origin xyz="${(0)/1000} 0 0" rpy="${pi/2 + (pi)} 0 ${pi/2 - (pi)}" />            <!-- eef is at the center of gripper-->
+    <parent link="tool0"/>
+    <child link="eef_link"/>
+  </joint> 
+
+  <link name="motoman_base">
+    <visual>
+      <geometry>
+        <mesh filename="package://motoman_description/meshes/motoman_base/motoman_base.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+      <material name="Green">
+        <color rgba="0 1 0 0.5"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://motoman_description/meshes/motoman_base/motoman_base.stl" scale="1 1 1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+    </collision>
+  </link>
+  <joint name="motoman_base_to_world" type="fixed">
+    <parent link="world"/>
+    <child link="motoman_base"/>
+    <origin xyz="0.55 0.33 -0.5" rpy="0 0 0"/>
+  </joint>
+  
+</robot>

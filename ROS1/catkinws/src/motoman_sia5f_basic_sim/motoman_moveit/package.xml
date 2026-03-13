@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>motoman_moveit</name>
+  <version>0.0.1</version>
+  <description>The motoman_moveit package</description>
+
+  <maintainer email="gmp.prem1997@gmail.com">prem</maintainer>
+
+  <license>BSD</license>
+
+  <author email="groadpg@gmail.com">RyodoTanaka</author>
+  <author email="ry0@todo.todo">ry0</author>
+  <author email="p595201m@mail.kyutech.jp">MoriKen</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>motoman_description</build_depend>
+  <build_depend>moveit_commander</build_depend>
+  <build_depend>moveit_core</build_depend>
+  <build_depend>moveit_msgs</build_depend>
+  <build_depend>moveit_ros_planning</build_depend>
+  <build_depend>moveit_ros_planning_interface</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>roslaunch</build_depend>
+
+  <build_export_depend>motoman_description</build_export_depend>
+  <build_export_depend>moveit_commander</build_export_depend>
+  <build_export_depend>moveit_core</build_export_depend>
+  <build_export_depend>moveit_msgs</build_export_depend>
+  <build_export_depend>moveit_ros_planning</build_export_depend>
+  <build_export_depend>moveit_ros_planning_interface</build_export_depend>
+  <build_export_depend>pluginlib</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>roslaunch</build_export_depend>
+
+  <exec_depend>motoman_description</exec_depend>
+  <exec_depend>moveit_commander</exec_depend>
+  <exec_depend>moveit_core</exec_depend>
+  <exec_depend>moveit_msgs</exec_depend>
+  <exec_depend>moveit_ros_planning</exec_depend>
+  <exec_depend>moveit_ros_planning_interface</exec_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>roslaunch</exec_depend>
+
+
+  <export>
+  </export>
+  
+</package>

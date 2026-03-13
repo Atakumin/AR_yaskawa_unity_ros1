@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <!-- arguments -->
+    <arg name="paused" default="false"/>
+    <arg name="gazebo_gui" default="true"/>
+    <arg name="initial_joint_positions" doc="Initial joint configuration of the robot"
+        default=" -J joint_b 0 -J joint_e 0 -J joint_l 0 -J joint_r 0 -J joint_s 0 -J joint_t 0 -J joint_u 0"/>
+
+    <arg name="model" default="$(find motoman_description)/urdf/sia5_basic.urdf.xacro"/>
+
+    <!-- load rviz at start -->
+    <arg name="use_rviz" default="true" />
+
+    <!-- set initial pose of robot -->
+    <arg name="x" value="0.0"/>
+    <arg name="y" value="0.0"/>
+    <arg name="z" value="0.5"/>
+    <arg name="roll" value="0.0"/>
+    <arg name="pitch" value="0.0"/>
+    <arg name="yaw" value="0.0"/>
+    <arg name="world_pose" 
+        value="-x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)" />
+
+    <!-- motoman simulation control -->
+    <include file="$(find motoman_control)/launch/sia5_sim_control.launch"/>
+
+    <!-- start up simulated world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" default="$(find motoman_sia5f_gazebo)/worlds/sia5_empty.world"/>
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="gui" value="$(arg gazebo_gui)"/>
+    </include>
+
+    <!-- send urdf file to ros param -->
+    <param name="robot_description"
+        command="$(find xacro)/xacro '$(arg model)'" />
+
+    <!-- spawn the urdf in gazebo sim world -->
+    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -model sia5 -param robot_description $(arg world_pose) $(arg initial_joint_positions)"
+        respawn="false" output="screen" />
+
+    <!-- start rviz if arg use_rviz is true -->
+    <node type="rviz" name="rviz" pkg="rviz" 
+        if="$(eval arg('use_rviz') == true)"
+        args="-d $(find motoman_sia5f_gazebo)/rviz_config/sia5_basic_moveit_config.rviz" />
+
+</launch>
