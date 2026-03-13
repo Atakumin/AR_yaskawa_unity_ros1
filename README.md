@@ -12,10 +12,10 @@
 
 **1. MoveIt! デモ環境の起動**
 ```bash
-roslaunch motoman\_moveit\_config demo.launch
+roslaunch motoman_moveit_config demo.launch
 ```
 
 **2. SIA5 MoveIt! 環境の起動**
 ```bash
-roslaunch sia5\_moveit sia5\_moveit.launch
+roslaunch sia5_moveit sia5_moveit.launch
 ```
